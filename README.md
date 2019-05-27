@@ -7,7 +7,7 @@ Chekhov Js Framework
 </li>
 <li> Remember that the script file should always be included after the <body> closing tag</li>
 <li><h2>Key elements</h2></li>
-<img src="./assets/chekhov.png"></img>
+<img src="./chekhov.jpg"></img>
 The first thing you'll need when using ch.js is the values object 
 
 ```js
