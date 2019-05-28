@@ -37,18 +37,22 @@ like this
 ## due to simpilcity of the framework it requires you to do a few things manually
 but it still provides some handy shortcuts
 ```html
-    <div ch-repeat array="values.array" iter="iterator">
+    <div ch-for linked="array" trigger="_iterator">
         <h1 class="central" ch-bind>{{iterator}}</h1>
     </div>
 ```
 for repeating something a few times but it requires setting up a computed property, that's pretty easy though
 ```js
-            iterator: function (i) {
+            _iterator: function (i) {
                 return values.array[i]
             }
 ```
+There's also ch-if 
 ```html
-<button ch-event trigger="click" linked="switch">Continue</button>
+<li ch-if linked="value">To display or not to display 💀</li>
+```
+```html
+<button ch-model trigger="click" linked="switch">Continue</button>
 ```
 to call the linked method when the trigger event happens
 ## A little more
@@ -56,7 +60,7 @@ to call the linked method when the trigger event happens
         <input ch-model linked="name" dep="msg" trigger="input"/>
 ```
 is used
-for calling the linked method and updating the dep value when the trigger event happens
+for calling the linked method when the trigger event happens
 ### Most important one
 # Behold
 ```html
