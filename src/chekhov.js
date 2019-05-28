@@ -16,84 +16,64 @@ function instances(type, constructor) {
 }
 class Chekhov {
   constructor(object, values) {
-    var repeats = instances('repeat', function (elem) {
-      this.tag = elem.tagName.toLowerCase()
-      this.array = elem.getAttribute("array")
-      this.iter = elem.getAttribute("iter")
-      this.attr = elem.getAttribute("attr")
+    var std_factory = function (elem) {
       this.elem = elem
-    })
-    repeats.forEach(i => {
-      values.iterator = -1;
-      i.copy = i.elem.innerHTML
+      this.copy = elem.innerHTML
+      this.trigger = elem.getAttribute('trigger')
+      this.linked = elem.getAttribute('linked')
+      elem.innerHTML = ""
+    }
+    var fors = instances('for', std_factory)
+    fors.forEach(i => {
       i.elem.innerHTML = ""
-      eval(i.array).forEach(j => {
-        values.iterator++;
-        if (!object.reactive.hasOwnProperty(i.iter)) {
-          i.elem.innerHTML += i.copy.replace(new RegExp(`{{${i.iter}}}`, 'g'), j)
+      values.iterator = -1
+      values[i.linked].forEach(j => {
+        values.iterator++
+        if (!object.reactive.hasOwnProperty(i.trigger) && i.copy.match(new RegExp(`{{${i.trigger}}}`, 'g')) != null) {
+          i.elem.innerHTML = i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), value)
         }
-        else {
-          i.elem.innerHTML += i.copy.replace(new RegExp(`{{${i.iter}}}`, 'g'), object.reactive[i.iter](values.iterator))
+        else if (i.copy.match(new RegExp(`{{${i.trigger}}}`, 'g')) != null) {
+          i.elem.innerHTML +=  i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), object.reactive[i.trigger](values.iterator))
         }
       });
-    })
-    var bindings = instances('bind', function (elem) {
-      this.tag = elem.tagName.toLowerCase()
-      this.copy = elem.innerHTML
-      this.elem = elem
-    })
-    let proxy = new Proxy(object, {
+    });
+    var ifs = instances('if', std_factory)
+    var bindings = instances('bind', std_factory)
+    let proxy = new Proxy(values, {
       get: (target, prop) => {
         return target[prop];
       },
       set: (target, prop, value) => {
         bindings.forEach(i => {
-          if (i.copy.match(`{{${prop}}}`, 'g') != null) {
-            if (!object.reactive.hasOwnProperty(prop)) {
-              i.elem.innerHTML = value.replace(new RegExp(`{{${prop}}}`, 'g'), value)
-            }
-            else {
-              i.elem.innerHTML = target.reactive[prop]()
-            }
+          if (!object.reactive.hasOwnProperty(prop) && i.copy.match(new RegExp(`{{${prop}}}`, 'g')) != null) {
+            i.elem.innerHTML = i.copy.replace(new RegExp(`{{${prop}}}`, 'g'), value)
+          }
+          else if (i.copy.match(new RegExp(`{{${prop}}}`, 'g')) != null) {
+            i.elem.innerHTML = i.copy.replace(new RegExp(`{{${prop}}}`, 'g'), object.reactive[prop]())
+          }
+        });
+        
+        ifs.forEach(i => {
+          if (i.linked == prop) {
+            i.elem.hidden = !value
           }
         });
         target[prop] = value;
         return true;
       }
     });
-    var models = instances('model', function (elem) {
-      this.tag = elem.tagName.toLowerCase()
-      this.trigger = elem.getAttribute("trigger")
-      this.linked = elem.getAttribute("linked")
-      this.dep = elem.getAttribute("dep")
-      this.elem = elem
-    })
+
+    var models = instances('model', std_factory)
     models.forEach(i => {
-      i.elem.addEventListener(i.trigger, () => {
-        values[i.linked] = i.elem.value
-        proxy[i.dep] = null
+      i.elem.addEventListener(i.trigger, function () {
+        proxy[i.linked] = i.elem.value
+        Object.entries(object.reactive).forEach(f => {
+          if(eval(f)[0][0]!= '_')
+          {
+            proxy[eval(f)[0]] = eval(f)[1](i.elem.value)
+          }
+        })
       })
-    });
-    var events = instances('event', function (elem) {
-      this.tag = elem.tagName.toLowerCase()
-      this.trigger = elem.getAttribute("trigger")
-      this.linked = elem.getAttribute("linked")
-      this.elem = elem
-    })
-    events.forEach(i => {
-      i.elem.addEventListener("click", () => {
-        object.reactive[i.linked]()
-      })
-    });
-    
-    var ifs = instances('if', function(elem)
-    {
-      this.tag = elem.tagName.toLowerCase()
-      this.condition = elem.getAttribute("condition")
-      this.elem = elem
-    })
-    ifs.forEach(i => {
-        i.elem.hidden = !eval(i.condition) 
     });
     this.data = proxy
   }
