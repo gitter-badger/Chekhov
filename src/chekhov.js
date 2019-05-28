@@ -38,6 +38,10 @@ class Chekhov {
       });
     });
     var ifs = instances('if', std_factory)
+    var srcs = instances('src', std_factory)
+    srcs.forEach(i => {
+      i.elem.src = object.reactive[i.linked]()
+    });
     var bindings = instances('bind', std_factory)
     let proxy = new Proxy(values, {
       get: (target, prop) => {

@@ -1,0 +1,23 @@
+{
+  "name": "chekhov",
+  "version": "1.0.0",
+  "description": "Chekhov Js ",
+  "main": "chekhov.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Valentin1503/Chekhov.git"
+  },
+  "keywords": [
+    "tiny",
+    "js"
+  ],
+  "author": "Valentin1503",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Valentin1503/Chekhov/issues"
+  },
+  "homepage": "https://github.com/Valentin1503/Chekhov#readme"
+}
