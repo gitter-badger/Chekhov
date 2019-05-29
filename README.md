@@ -67,3 +67,20 @@ for calling the linked method when the trigger event happens
  <h1 ch-bind>{{some_value}}</h1>
 ```
 which binds the inner value of the element to the property or a value contained in ch.data (e.g. ch.data.msg)
+## And it's sibling
+```html
+<img ch-src linked="some_source">
+```
+, not that ch-src can also be used in lists
+, like this
+```html
+        <div ch-for linked="images" trigger="_image">
+            <img class="image" ch-src linked="_image">
+        </div>
+```
+and suppose you have the following JS in reactive
+```js
+            _image: function (i) {
+                return values.images[i].url
+            }
+```
