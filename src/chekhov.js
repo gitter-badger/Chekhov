@@ -29,19 +29,20 @@ class Chekhov {
       values.iterator = -1
       values[i.linked].forEach(j => {
         values.iterator++
-        if (!object.reactive.hasOwnProperty(i.trigger) && i.copy.match(new RegExp(`{{${i.trigger}}}`, 'g')) != null) {
+        if (!object.reactive.hasOwnProperty(i.trigger)) {
           i.elem.innerHTML = i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), value)
         }
-        else if (i.copy.match(new RegExp(`{{${i.trigger}}}`, 'g')) != null) {
+        else {
           i.elem.innerHTML +=  i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), object.reactive[i.trigger](values.iterator))
         }
       });
     });
     var ifs = instances('if', std_factory)
     var srcs = instances('src', std_factory)
-    srcs.forEach(i => {
-      i.elem.src = object.reactive[i.linked]()
-    });
+    for (let i = 0; i < srcs.length; i++) {
+      const e = srcs[i];
+      e.elem.src = object.reactive[e.linked](i)
+    }
     var bindings = instances('bind', std_factory)
     let proxy = new Proxy(values, {
       get: (target, prop) => {
