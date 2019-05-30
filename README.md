@@ -24,9 +24,7 @@ let values =
 }
 ```
 
-{% hint style="success" %}
-Yay! You're now $$1/2 $$ ready
-{% endhint %}
+> Yay! You're now $$1/2 $$ ready
 
 ### And the other one
 
@@ -41,7 +39,5 @@ let ch = new Chekhov({
 }, values)
 ```
 
-{% hint style="warning" %}
-You can choose any names for your properties but those who start with \_ \(underscore\) will not be re-computed
-{% endhint %}
+> You can choose any names for your properties but those who start with \_ \(underscore\) will not be re-computed
 
