@@ -14,6 +14,20 @@ function instances(type, constructor) {
   }
   return instances
 }
+function tag_instances(type, constructor) {
+  var tag_instances = []
+  ctrls[type] =
+    {
+      factory: constructor,
+      type: type
+    }
+  var el = document.getElementsByTagName(type)
+  for (var i = 0; i < el.length; i++) {
+    tag_instances[i] = new ctrls[type].factory(el[i])
+    tag_instances[i].type = type;
+  }
+  return tag_instances
+}
 class Chekhov {
   constructor(object, values) {
     var std_factory = function (elem) {
@@ -23,32 +37,66 @@ class Chekhov {
       this.linked = elem.getAttribute('linked')
       elem.innerHTML = ""
     }
+    this.index = document.URL
+    console.log(`Index -> ${this.index}`)
+    var portals = tag_instances('portal', std_factory)
+    portals.forEach(i => {
+      const inclusion = document.createElement('iframe')
+      inclusion.src = object.portal[i.linked]
+      i.elem.appendChild(inclusion)
+    });
     var fors = instances('for', std_factory)
     fors.forEach(i => {
       i.elem.innerHTML = ""
-      values.iterator = -1
-      values[i.linked].forEach(j => {
-        values.iterator++
+      var iter = -1
+      for (let u = 0; u < values[i.linked].length; u++) {
+        var j = values[i.linked][u];
+        iter++
         if (!object.reactive.hasOwnProperty(i.trigger)) {
           i.elem.innerHTML = i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), value)
         }
         else {
-          i.elem.innerHTML +=  i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), object.reactive[i.trigger](values.iterator))
+          i.elem.innerHTML += i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), object.reactive[i.trigger](iter))
         }
-      });
+      }
     });
-    var ifs = instances('if', std_factory)
     var srcs = instances('src', std_factory)
     for (let i = 0; i < srcs.length; i++) {
       const e = srcs[i];
-      e.elem.src = object.reactive[e.linked](i)
+      e.elem.src = object.reactive[e.linked](i - 1)
     }
+    var ifs = instances('if', std_factory)
     var bindings = instances('bind', std_factory)
+    console.log(routers)
     let proxy = new Proxy(values, {
       get: (target, prop) => {
         return target[prop];
       },
       set: (target, prop, value) => {
+        fors.forEach(i => {
+          i.elem.innerHTML = ""
+          var iter = -1
+          for (let u = 0; u < values[i.linked].length; u++) {
+            var j = values[i.linked][u];
+            iter++
+            if (!object.reactive.hasOwnProperty(i.trigger)) {
+              i.elem.innerHTML = i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), value)
+            }
+            else {
+              i.elem.innerHTML += i.copy.replace(new RegExp(`{{${i.trigger}}}`, 'g'), object.reactive[i.trigger](iter))
+            }
+          }
+        });
+        routers.forEach(i => {
+          const inclusion = document.createElement('iframe')
+          inclusion.src = object.router[i.linked]
+          i.elem.appendChild(inclusion)
+        });
+        ifs.forEach(i => {
+          if (i.linked == prop) {
+            i.elem.hidden = !value
+          }
+        });
         bindings.forEach(i => {
           if (!object.reactive.hasOwnProperty(prop) && i.copy.match(new RegExp(`{{${prop}}}`, 'g')) != null) {
             i.elem.innerHTML = i.copy.replace(new RegExp(`{{${prop}}}`, 'g'), value)
@@ -57,12 +105,12 @@ class Chekhov {
             i.elem.innerHTML = i.copy.replace(new RegExp(`{{${prop}}}`, 'g'), object.reactive[prop]())
           }
         });
-        
-        ifs.forEach(i => {
-          if (i.linked == prop) {
-            i.elem.hidden = !value
-          }
-        });
+
+        var srcs = instances('src', std_factory)
+        for (let i = 0; i < srcs.length; i++) {
+          const e = srcs[i];
+          e.elem.src = object.reactive[e.linked](i - 1)
+        }
         target[prop] = value;
         return true;
       }
@@ -73,12 +121,17 @@ class Chekhov {
       i.elem.addEventListener(i.trigger, function () {
         proxy[i.linked] = i.elem.value
         Object.entries(object.reactive).forEach(f => {
-          if(eval(f)[0][0]!= '_')
-          {
+          if (eval(f)[0][0] != '_') {
             proxy[eval(f)[0]] = eval(f)[1](i.elem.value)
           }
         })
       })
+    });
+    var events = instances('event', std_factory)
+    events.forEach(i => {
+      i.elem.addEventListener(i.trigger, function () {
+        object.reactive[i.linked]()
+      }, {once: true} )
     });
     this.data = proxy
   }
