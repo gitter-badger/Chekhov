@@ -87,9 +87,9 @@ class Chekhov {
             }
           }
         });
-        routers.forEach(i => {
+        portals.forEach(i => {
           const inclusion = document.createElement('iframe')
-          inclusion.src = object.router[i.linked]
+          inclusion.src = object.portal[i.linked]
           i.elem.appendChild(inclusion)
         });
         ifs.forEach(i => {
