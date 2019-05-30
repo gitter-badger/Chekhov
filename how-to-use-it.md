@@ -52,3 +52,5 @@ let ch = new Chekhov({
 
 ```
 
+{% page-ref page="content-inclusion.md" %}
+

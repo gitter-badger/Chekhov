@@ -37,3 +37,5 @@ let ch = new Chekhov({
 }, values)
 ```
 
+{% page-ref page="how-to-use-it.md" %}
+
