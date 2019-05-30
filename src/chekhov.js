@@ -42,6 +42,7 @@ class Chekhov {
     var portals = tag_instances('portal', std_factory)
     portals.forEach(i => {
       const inclusion = document.createElement('iframe')
+      i.incl = inclusion
       inclusion.src = object.portal[i.linked]
       i.elem.appendChild(inclusion)
     });
@@ -88,9 +89,7 @@ class Chekhov {
           }
         });
         portals.forEach(i => {
-          const inclusion = document.createElement('iframe')
-          inclusion.src = object.portal[i.linked]
-          i.elem.appendChild(inclusion)
+          i.incl.src = object.portal[i.linked]
         });
         ifs.forEach(i => {
           if (i.linked == prop) {
